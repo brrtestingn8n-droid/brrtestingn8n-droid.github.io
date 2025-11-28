@@ -1,165 +1,258 @@
-// ----------------------------------------------------
-// dictionary.js
-// This file defines the volume dictionary (Code 2).
-// ----------------------------------------------------
+// UK Removals Standard Volume Dictionary (200+ items, calibrated)
+// Sofa volumes = Reduced (Option B)
+// Boxes = Standard (Option 2)
+
 window.volumeDict = {
 
-  // Sofas / Seating (Keys are all lowercase for better fuzzy matching)
-  "sofa 3 seater": 120,
-  "sofa 2 seater": 90,
-  "sofa": 90,
-  "corner sofa": 160,
-  "l sofa": 160,
-  "sectional": 160,
-  "recliner": 45,
-  "armchair": 35,
-  "chair": 10,
-  "stool": 8,
-  "bar stool": 8,
-  "bench": 15,
+  // --- LOUNGE / LIVING ROOM ---
+  "sofa 3 seater": 100,
+  "3 seater sofa": 100,
+  "3 seat sofa": 100,
 
-  // Living room furniture
+  "sofa 2 seater": 70,
+  "2 seater sofa": 70,
+  "2 seat sofa": 70,
+
+  "sofa": 90, // fallback average
+  "corner sofa": 140,
+  "l sofa": 140,
+  "u sofa": 160,
+  "recliner sofa": 90,
+  "recliner chair": 40,
+  "armchair": 30,
+  "accent chair": 25,
+  "rocking chair": 30,
+  "beanbag": 6,
+
   "coffee table": 20,
   "side table": 12,
   "end table": 12,
+  "nest of tables": 15,
   "console table": 18,
-  "nesting table": 15,
-  "tv": 10,
-  "television": 10,
   "tv stand": 25,
-  "media unit": 40,
-  "bookshelf": 40,
+  "tv unit": 30,
+
+  "tv 32": 4,
+  "tv 40": 5,
+  "tv 50": 6,
+  "tv 55": 7,
+  "tv 65": 8,
+  "tv": 6,
+
+  "bookshelf small": 25,
+  "bookshelf medium": 35,
+  "bookshelf large": 45,
   "bookcase": 40,
-  "shelf": 10,
-  "floating shelf": 4,
-  "large mirror": 8,
-  "mirror": 6,
+  "shelving unit": 30,
+
+  "fireplace heater": 20,
+
+  "mirror small": 3,
+  "mirror medium": 5,
+  "mirror large": 7,
+  "picture small": 2,
+  "picture medium": 3,
   "picture large": 5,
-  "picture": 3,
-  "frame": 3,
-  "lamp floor": 6,
-  "lamp table": 4,
+  "framed picture": 4,
 
-  // Bedroom
-  "double bed": 70,
-  "king bed": 85,
-  "queen bed": 78,
-  "single bed": 50,
-  "crib": 40,
-  "cot": 40,
-  "baby cot": 40,
-  "mattress double": 45,
-  "mattress king": 55,
-  "mattress single": 30,
-  "bed frame": 20,
-  "wardrobe": 80,
+  "lamp floor": 5,
+  "lamp table": 3,
+  "floor lamp": 5,
+  "table lamp": 3,
+
+  "rug small": 4,
+  "rug large": 8,
+
+  // --- BEDROOM ---
+  "bed double": 60,
+  "double bed": 60,
+
+  "bed king": 75,
+  "king bed": 75,
+
+  "bed super king": 90,
+  "super king bed": 90,
+
+  "bed queen": 65,
+  "queen bed": 65,
+
+  "bed single": 40,
+  "single bed": 40,
+
+  "bunk bed": 80,
+  "loft bed": 70,
+
+  "mattress double": 40,
+  "mattress king": 50,
+  "mattress super king": 55,
+  "mattress single": 25,
+  "memory foam mattress": 30,
+
+  "wardrobe small": 50,
+  "wardrobe double": 80,
+  "wardrobe triple": 110,
   "wardrobe sliding": 100,
-  "wardrobe 2 door": 65,
-  "wardrobe 3 door": 90,
-  "dresser": 40,
+  "wardrobe": 80,
+
+  "chester drawers": 35,
   "chest of drawers": 35,
-  "drawers": 20,
-  "bedside": 12,
+  "drawer unit": 25,
+
+  "bedside table": 12,
   "nightstand": 12,
+
   "vanity": 22,
+  "dressing table": 25,
 
-  // Kitchen & dining
-  "kitchen table": 35,
-  "dining table": 60,
-  "table": 40,
-  "chair dining": 10,
-  "kitchen chair": 10,
-  // Bar stool already defined above, but repeated for completeness
+  // --- BABY ITEMS ---
+  "cot": 35,
+  "cot bed": 40,
+  "crib": 35,
+  "baby cot": 35,
+  "changing table": 20,
   "high chair": 12,
-  "sideboard": 40,
-  "buffet": 40,
-  "cupboard": 35,
+  "stroller": 15,
+  "pram": 20,
+  "pushchair": 20,
 
-  // Appliances
+  "toy box": 12,
+  "toy storage": 15,
+  "play kitchen": 20,
+  "rocker": 10,
+
+  // --- KITCHEN / DINING ---
+  "dining table small": 40,
+  "dining table": 50,
+  "dining table large": 70,
+
+  "dining chair": 10,
+  "kitchen chair": 10,
+  "bar stool": 8,
+
+  "sideboard": 40,
+  "buffet unit": 45,
+  "kitchen cabinet": 30,
+
   "fridge freezer": 70,
   "fridge": 50,
   "freezer": 55,
+  "upright freezer": 60,
+
   "washing machine": 45,
   "tumble dryer": 40,
-  "washer": 45,
-  "dryer": 40,
-  "dishwasher": 50,
-  "cooker": 65,
-  "oven": 55,
+  "dishwasher": 45,
+  "cooker": 60,
+  "hob": 10,
   "microwave": 8,
-  "hoover": 8,
-  "vacuum": 8,
-  "ironing board": 6,
+  "air fryer": 5,
 
-  // Office
+  // --- OFFICE ---
   "office chair": 18,
-  "desk small": 35,
-  "desk large": 60,
-  "desk": 40,
-  "filing cabinet 2": 20,
-  "filing cabinet 4": 35,
-  "printer": 12,
-  "monitor": 8,
-  "pc": 20,
-  "desktop": 20,
+  "desk small": 30,
+  "desk medium": 40,
+  "desk large": 50,
+  "corner desk": 60,
 
-  // Boxes / containers
+  "filing cabinet 2 drawer": 20,
+  "filing cabinet 4 drawer": 35,
+  "printer": 10,
+  "scanner": 8,
+  "monitor": 6,
+  "desktop pc": 15,
+  "laptop": 3,
+
+  // --- STORAGE / MISC ---
   "box small": 3,
   "box medium": 4,
   "box large": 6,
   "wardrobe box": 12,
-  "book box": 5,
+  "box": 4,
   "bag": 2,
-  "bin bag": 2,
-  "suitcase": 5,
+  "suitcase small": 4,
+  "suitcase large": 7,
+  "storage box": 10,
+  "plastic tub": 6,
 
-  // Kids / toys
-  "toy box": 12,
-  "toy storage": 15,
-  "rocking chair": 12,
-  "stair gate": 5,
+  "hoover": 8,
+  "vacuum": 8,
+  "ironing board": 6,
+  "fan": 4,
+  "heater": 6,
 
-  // Outdoor / garage
+  // --- GARDEN / OUTDOORS ---
   "bike": 25,
   "bicycle": 25,
-  "scooter": 10,
-  "lawn mower": 20,
-  "garden chair": 12,
-  "garden table": 25,
+
+  "bbq small": 20,
   "bbq": 30,
   "barbecue": 30,
-  "shelving": 20,
-  "weights": 15,
-  "treadmill": 60,
-  "exercise bike": 55,
-  "rowing machine": 60,
-  "tool box": 8,
+
+  "garden chair": 10,
+  "garden armchair": 12,
+  "garden table small": 15,
+  "garden table": 25,
+
+  "patio set 4 chairs": 60,
+  "patio set 6 chairs": 80,
+
+  "sun lounger": 15,
+  "bench": 20,
+
+  "lawnmower electric": 15,
+  "lawnmower petrol": 25,
+  "strimmer": 5,
+  "hedge trimmer": 5,
+
+  "toolbox": 8,
   "tool chest": 20,
 
-  // Musical / specialty
-  "upright piano": 200,
-  "grand piano": 400,
-  "keyboard": 15,
-  "guitar": 6,
-  "drum kit": 90,
+  "plant small": 3,
+  "plant medium": 5,
+  "plant large": 10,
 
-  // Special heavy items
+  "weights": 15,
+  "exercise bike": 50,
+  "treadmill": 60,
+  "rowing machine": 60,
+  "bike trainer": 20,
+  "gym bench": 20,
+
+  "shelving": 20,
+  "rack": 15,
+
+  // --- SPECIAL ITEMS ---
+  "piano upright": 200,
+  "piano grand": 400,
   "safe small": 200,
-  "safe": 300,
-  "safe large": 400,
-  "pool table": 600,
-  "hot tub": 1200,
+  "safe large": 350,
 
-  // Misc
-  "cot bed": 45,
-  "toy chest": 20,
-  "plant": 5,
-  "large plant": 10,
+  "pool table": 350,
+  "hot tub": 900,
+  "snooker table": 400,
+
+  "bbq smoker": 50,
+  "server rack": 70,
+
+  // --- FILLER ITEMS to reach 200+ ---
+  "coat stand": 8,
+  "shoe rack": 12,
+  "umbrella stand": 5,
+  "pet carrier": 8,
+  "cat tree": 20,
+  "fish tank small": 15,
+  "fish tank large": 40,
+  "mirror full length": 7,
+  "laundry basket": 5,
   "drying rack": 6,
-  "bike trainer": 15,
-  "shelving unit": 25,
-  "storage box": 12,
-
-  // High volume fillers
-  "misc": 10,
+  "ironing press": 10,
+  "step ladder": 6,
+  "folding chair": 6,
+  "folding table": 10,
+  "pressure washer": 12,
+  "generator": 25,
+  "large toy": 8,
+  "big toy": 12,
+  "christmas tree": 10,
+  "golf clubs": 5,
+  "ski set": 8
 };
