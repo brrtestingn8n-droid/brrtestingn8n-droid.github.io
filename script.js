@@ -23,15 +23,12 @@ function detectQty(str) {
     let qty = 1;
     let m;
 
-    // "3 x item" or "3x item"
     m = str.match(/^(\d+)\s*x\s*/);
     if (m) return parseInt(m[1]);
 
-    // "3 item" at start
     m = str.match(/^(\d+)\s+/);
     if (m) return parseInt(m[1]);
 
-    // "item x3" at end
     m = str.match(/x\s*(\d+)$/);
     if (m) return parseInt(m[1]);
 
@@ -49,7 +46,6 @@ function smartDictionaryMatch(clean) {
         if (keyWords.every(w => clean.includes(w))) return key;
     }
 
-    // Fallback: fuzzy match (levenshtein must exist)
     let bestKey = null;
     let bestScore = Infinity;
 
@@ -79,19 +75,19 @@ function parseDimensions(text) {
 // PARSE ONE ITEM
 //-----------------------------------------------------
 function parseItem(raw) {
-    if (!raw.trim()) return 0;
+    if (!raw.trim()) return { vol: 0, key: null };
 
     let line = normalizeText(raw);
     const qty = detectQty(line);
     line = line.replace(/^(\d+\s*x\s*|\d+\s+|x\d+\s*)/, "").trim();
 
     const dimVol = parseDimensions(line);
-    if (dimVol) return qty * dimVol;
+    if (dimVol) return { vol: qty * dimVol, key: line };
 
     const key = smartDictionaryMatch(line);
-    if (!key) return 0;
+    if (!key) return { vol: 0, key: null };
 
-    return qty * window.volumeDict[key];
+    return { vol: qty * window.volumeDict[key], key };
 }
 
 //-----------------------------------------------------
@@ -105,8 +101,14 @@ function calculateVolume() {
         .filter(s => s.length > 0);
 
     let total = 0;
-    for (const p of parts) total += parseItem(p);
-    return total;
+    let unmatched = [];
+    for (const p of parts) {
+        const { vol, key } = parseItem(p);
+        total += vol;
+        if (!key) unmatched.push(p);
+    }
+
+    return { total, unmatched };
 }
 
 //-----------------------------------------------------
@@ -133,16 +135,26 @@ function getMen(v) {
 // BUTTON HANDLER
 //-----------------------------------------------------
 document.getElementById("btnCalc").onclick = () => {
-    const v = Math.round(calculateVolume());
-    const men = getMen(v);
-    const veh = getVehicle(v);
+    const { total, unmatched } = calculateVolume();
+    const men = getMen(total);
+    const veh = getVehicle(total);
 
-    document.getElementById("output").innerText =
-        `📦 Volume: ${v} cu ft\n👷 Men: ${men}\n🚚 Vehicle: ${veh}`;
+    // Display results
+    let output = `📦 Volume: ${Math.round(total)} cu ft\n👷 Men: ${men}\n🚚 Vehicle: ${veh}`;
+    if (unmatched.length > 0) {
+        output += `\n⚠️ Unmatched items: ${unmatched.join(", ")}`;
+    }
+    document.getElementById("output").innerText = output;
+
+    // Highlight unmatched items in textarea
+    const textarea = document.getElementById("items");
+    const lines = textarea.value.split(/[\n,]+/).map(s => s.trim());
+    const highlighted = lines.map(l => unmatched.includes(l) ? `⚠️ ${l}` : l);
+    textarea.value = highlighted.join("\n");
 };
 
 //-----------------------------------------------------
-// LEVENSHTEIN DISTANCE FUNCTION (for fuzzy matching)
+// LEVENSHTEIN DISTANCE FUNCTION
 //-----------------------------------------------------
 function levenshtein(a, b) {
     if (!a || !b) return (a || b).length;
