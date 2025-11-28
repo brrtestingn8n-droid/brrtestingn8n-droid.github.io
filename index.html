@@ -7,83 +7,34 @@
 <style>
   body { font-family: Arial, sans-serif; margin: 20px; background:#f6f8fb; }
   h2 { text-align: center; margin-bottom:10px; }
-  header { text-align:center; margin-bottom:20px; }
-  .logo { max-width:220px; }
-  .wrapper { max-width:1100px; margin:auto; }
-  .section-title { font-weight:bold; margin:10px 0; }
   .container { display: flex; gap: 20px; }
-  .box { background:white; border: 2px solid #1b3c7a; padding: 15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,.1); }
-  label { display: block; margin-top: 10px; font-weight:bold; }
-  input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border:1px solid #999; border-radius:6px; }
-  textarea { resize: vertical; }
-  .services { margin-top: 20px; }
-  .services input { width: auto; }
+  .box { background:white; border: 2px solid #1b3c7a; padding: 15px; border-radius:10px; }
+  textarea { width:100%; padding:10px; border-radius:6px; border:1px solid #999; }
   button { background:#1b3c7a; color:white; border:none; padding:12px 25px; border-radius:8px; font-size:16px; cursor:pointer; margin-top:15px; }
   button:hover { background:#153063; }
-  #output { margin-top: 20px; padding: 15px; border: 2px solid #1b3c7a; border-radius:10px; background:white; min-height: 50px; box-shadow:0 2px 5px rgba(0,0,0,.1);}
+  #output { margin-top: 20px; padding: 15px; border: 2px solid #1b3c7a; border-radius:10px; background:white; min-height: 50px;}
 </style>
 </head>
+
 <body>
 
 <h2>Quote Calculator</h2>
 
-<div class="container">
-  <div class="box" style="flex:1">
-    <h3>List of items</h3>
-    <textarea id="items" rows="12"></textarea>
-    <label>Special items</label>
-    <select id="specialItems">
-      <option value="none">None</option>
-      <option value="piano">Piano</option>
-      <option value="safe">Safe</option>
-      <option value="marble">Marble Table</option>
-    </select>
-  </div>
+<div class="box">
+  <h3>List of items</h3>
+  <textarea id="items" rows="16" placeholder="Enter items like: 3 boxes, 2 beds, sofa, tv..."></textarea>
 
-  <div style="flex:1">
-    <div class="box">
-      <label>Pickup address</label>
-      <input id="pickupAddr" />
-      <label>House/flat</label>
-      <input id="pickupType" />
-      <label>Floor</label>
-      <input id="pickupFloor" type="number" value="0" min="0" />
-      <label>Lift (y/n)</label>
-      <input id="pickupLift" value="n" />
-      <label>Bedrooms</label>
-      <input id="pickupBeds" type="number" value="1" min="0" />
-    </div>
-
-    <div class="box" style="margin-top:20px;">
-      <label>Delivery address</label>
-      <input id="deliveryAddr" />
-      <label>House/flat</label>
-      <input id="deliveryType" />
-      <label>Floor</label>
-      <input id="deliveryFloor" type="number" value="0" min="0" />
-      <label>Lift (y/n)</label>
-      <input id="deliveryLift" value="n" />
-      <label>Bedrooms</label>
-      <input id="deliveryBeds" type="number" value="1" min="0" />
-    </div>
-  </div>
+  <button id="btnCalc">Generate Quote</button>
 </div>
-
-<div class="services">
-  <h3>Services</h3>
-  <label><input type="checkbox" id="packing" /> Packing</label>
-  <label><input type="checkbox" id="unpacking" /> Unpacking</label>
-  <label>Dismantling/Reassembly (number of items)</label>
-  <input id="dismantleCount" type="number" value="0" min="0" />
-</div>
-
-<button id="btnCalc">Generate Quote</button>
 
 <h3>Quote Output</h3>
 <div id="output"></div>
 
-<script src="/dictionary.js"></script>
-<script src="/scripts.js"></script>
+<!-- Load dictionary first -->
+<script src="dictionary.js"></script>
+
+<!-- Then main script -->
+<script src="script.js"></script>
 
 </body>
 </html>
