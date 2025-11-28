@@ -5,6 +5,7 @@ function normalizeText(str) {
     str = str.toLowerCase().trim();
 
     // common plural → singular rules
+    str = str.replace(/\bsofas\b/g, "sofa");
     str = str.replace(/\bboxes\b/g, "box");
     str = str.replace(/\bchairs\b/g, "chair");
     str = str.replace(/\bpictures\b/g, "picture");
@@ -38,26 +39,24 @@ function detectQty(str) {
 }
 
 //-----------------------------------------------------
-// VERY SAFE MATCHING — avoids false positives
+// SMART DICTIONARY MATCH
 //-----------------------------------------------------
 function smartDictionaryMatch(clean) {
+    // exact match
+    if (window.volumeDict[clean]) return clean;
+
+    // substring match for multi-word keys
+    for (const key in window.volumeDict) {
+        const keyWords = key.split(" ");
+        if (keyWords.every(w => clean.includes(w))) return key;
+    }
+
+    // fallback: fuzzy matching using levenshtein (optional)
     let bestKey = null;
-    let bestScore = 999;
+    let bestScore = Infinity;
 
     for (const key in window.volumeDict) {
-
-        // hard exact substring match first
-        if (clean.includes(key)) return key;
-
-        // multi-word keys MUST fully appear
-        const keyWords = key.split(" ");
-        let allFound = keyWords.every(w => clean.includes(w));
-        if (allFound) return key;
-
-        // skip fuzzy for keys shorter than 4 chars
         if (key.length < 4) continue;
-
-        // low fuzzy threshold
         const dist = levenshtein(clean, key);
         if (dist < bestScore) {
             bestScore = dist;
@@ -65,12 +64,11 @@ function smartDictionaryMatch(clean) {
         }
     }
 
-    // return fuzzy only if distance extremely low
     return bestScore <= 1 ? bestKey : null;
 }
 
 //-----------------------------------------------------
-// DIMENSIONS
+// DIMENSIONS PARSER
 //-----------------------------------------------------
 function parseDimensions(text) {
     const m = text.match(/(\d+)\s*[xX]\s*(\d+)\s*[xX]\s*(\d+)/);
@@ -102,7 +100,7 @@ function parseItem(raw) {
 }
 
 //-----------------------------------------------------
-// VOLUME CALC
+// CALCULATE TOTAL VOLUME
 //-----------------------------------------------------
 function calculateVolume() {
     const raw = document.getElementById("items").value;
