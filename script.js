@@ -1,10 +1,8 @@
 //-----------------------------------------------------
-// NORMALISE TEXT (plural → singular, cleanup)
+// NORMALISE TEXT
 //-----------------------------------------------------
 function normalizeText(str) {
     str = str.toLowerCase().trim();
-
-    // common plural → singular rules
     str = str.replace(/\bsofas\b/g, "sofa");
     str = str.replace(/\bboxes\b/g, "box");
     str = str.replace(/\bchairs\b/g, "chair");
@@ -14,10 +12,7 @@ function normalizeText(str) {
     str = str.replace(/\bbedsides\b/g, "bedside");
     str = str.replace(/\bbaskets\b/g, "basket");
     str = str.replace(/\bsuitcases\b/g, "suitcase");
-
-    // X pictures → X picture
     str = str.replace(/(\d+)\s+pictures/g, "$1 picture");
-
     return str;
 }
 
@@ -26,13 +21,18 @@ function normalizeText(str) {
 //-----------------------------------------------------
 function detectQty(str) {
     let qty = 1;
+    let m;
 
-    // "3 x item", "3x item", "item x3"
-    let m = str.match(/(\d+)\s*x/);
+    // "3 x item" or "3x item"
+    m = str.match(/^(\d+)\s*x\s*/);
     if (m) return parseInt(m[1]);
 
-    // "3 item"
+    // "3 item" at start
     m = str.match(/^(\d+)\s+/);
+    if (m) return parseInt(m[1]);
+
+    // "item x3" at end
+    m = str.match(/x\s*(\d+)$/);
     if (m) return parseInt(m[1]);
 
     return qty;
@@ -42,16 +42,14 @@ function detectQty(str) {
 // SMART DICTIONARY MATCH
 //-----------------------------------------------------
 function smartDictionaryMatch(clean) {
-    // exact match
     if (window.volumeDict[clean]) return clean;
 
-    // substring match for multi-word keys
     for (const key in window.volumeDict) {
         const keyWords = key.split(" ");
         if (keyWords.every(w => clean.includes(w))) return key;
     }
 
-    // fallback: fuzzy matching using levenshtein (optional)
+    // Fallback: fuzzy match (levenshtein must exist)
     let bestKey = null;
     let bestScore = Infinity;
 
@@ -85,13 +83,10 @@ function parseItem(raw) {
 
     let line = normalizeText(raw);
     const qty = detectQty(line);
+    line = line.replace(/^(\d+\s*x\s*|\d+\s+|x\d+\s*)/, "").trim();
 
-    // try dimensions
     const dimVol = parseDimensions(line);
     if (dimVol) return qty * dimVol;
-
-    // remove numbers before matching words
-    line = line.replace(/^\d+\s*x?\d*\s*/g, "").trim();
 
     const key = smartDictionaryMatch(line);
     if (!key) return 0;
@@ -104,22 +99,18 @@ function parseItem(raw) {
 //-----------------------------------------------------
 function calculateVolume() {
     const raw = document.getElementById("items").value;
-
     const parts = raw
-        .toLowerCase()
-        .replace(/\n/g, ",")
-        .split(",")
+        .split(/[\n,]+/)
         .map(s => s.trim())
         .filter(s => s.length > 0);
 
     let total = 0;
     for (const p of parts) total += parseItem(p);
-
     return total;
 }
 
 //-----------------------------------------------------
-// MEN & VEHICLE RULES
+// VEHICLE & MEN RULES
 //-----------------------------------------------------
 function getVehicle(v) {
     if (v <= 200) return "Transit Van";
@@ -139,7 +130,7 @@ function getMen(v) {
 }
 
 //-----------------------------------------------------
-// MAIN BTN
+// BUTTON HANDLER
 //-----------------------------------------------------
 document.getElementById("btnCalc").onclick = () => {
     const v = Math.round(calculateVolume());
@@ -149,3 +140,24 @@ document.getElementById("btnCalc").onclick = () => {
     document.getElementById("output").innerText =
         `📦 Volume: ${v} cu ft\n👷 Men: ${men}\n🚚 Vehicle: ${veh}`;
 };
+
+//-----------------------------------------------------
+// LEVENSHTEIN DISTANCE FUNCTION (for fuzzy matching)
+//-----------------------------------------------------
+function levenshtein(a, b) {
+    if (!a || !b) return (a || b).length;
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+            else matrix[i][j] = Math.min(
+                matrix[i - 1][j] + 1,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j - 1] + 1
+            );
+        }
+    }
+    return matrix[b.length][a.length];
+}
