@@ -1,6 +1,5 @@
 // dictionary.js
 // Updated volume dictionary based on provided Cu Ft values
-
 window.volumeDict = {
   // --- Sofas & seating
   "2 seater sofa": 30,
@@ -29,7 +28,7 @@ window.volumeDict = {
   "garden table 4-6 seats": 20,
 
   // --- Chairs
-  "dining chairs": 8,
+  "dining chair": 8,
   "high chair": 8,
   "office chair": 7,
   "childs chair": 10,
