@@ -1,50 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BestRate — Quote Calculator</title>
+  <meta charset="UTF-8">
+  <title>Volume Calculator</title>
   <style>
-    body { font-family: Arial, Helvetica, sans-serif; background:#f6f8fb; margin:18px; color:#1b2b45; }
-    .wrapper { max-width:1100px; margin:0 auto; }
-    h1 { text-align:center; color:#13345a; }
-    .grid { display:flex; gap:18px; align-items:flex-start; }
-    .card { flex:1; background:#fff; border:2px solid #1b3c7a; border-radius:10px; padding:14px; box-shadow:0 6px 14px rgba(8,20,40,0.06); }
-    label { display:block; margin-top:10px; font-weight:600; color:#2b3b55; }
-    textarea, input, select { width:100%; padding:8px; margin-top:6px; border:1px solid #c7c7c7; border-radius:6px; font-size:14px; box-sizing:border-box; }
-    textarea { min-height:220px; resize:vertical; }
-    button { background:#1b3c7a; color:#fff; border:none; padding:12px 18px; border-radius:8px; font-size:15px; cursor:pointer; margin-top:12px; }
-    button:hover { background:#153063; }
-    #output { margin-top:12px; white-space:pre-wrap; padding:12px; background:#fff; border:2px solid #1b3c7a; border-radius:8px; min-height:90px; box-shadow:0 4px 12px rgba(8,20,40,0.05); }
-    .hint { font-size:13px; color:#596778; margin-top:8px; }
-    .small { font-size:13px; color:#556677; }
+    body { font-family: Arial; padding: 20px; max-width: 900px; margin: auto; }
+    textarea { width: 100%; height: 250px; }
+    button { padding: 12px 25px; font-size: 16px; margin-top: 10px; }
+    #output { margin-top: 20px; white-space: pre-line; font-size: 18px; }
   </style>
 </head>
+
 <body>
-  <div class="wrapper">
-    <h1>BestRate — Volume & Quote Helper</h1>
 
-    <div class="grid">
-      <div class="card">
-        <label>Items (comma or newline separated)</label>
-        <textarea id="items" placeholder='Example:
-3 floating shelves, tv 30", armchair, 4 boxes, rug, 3 seater sofa'></textarea>
+<h2>Removals Volume Calculator</h2>
+<p>Enter items (comma-separated or line-separated):</p>
 
-        <div class="hint">Qty formats accepted: "2 x item", "2x item", "2 item", "item x2", ranges "50/60 boxes" (averaged), words like "two", "a".</div>
+<textarea id="items" placeholder="e.g. 3 boxes, corner sofa, tv 50&quot;, 2 wardrobes"></textarea>
+<br>
+<button id="btnCalc">Calculate</button>
 
-        <button id="btnCalc">Generate Quote</button>
-        <div class="small">Keyboard: Ctrl+Enter runs the calculator.</div>
-      </div>
+<div id="output"></div>
 
-      <div class="card">
-        <label>Output</label>
-        <div id="output">Results will appear here after clicking Generate Quote.</div>
-      </div>
-    </div>
-  </div>
+<script src="dictionary.js"></script>
+<script src="script.js"></script>
 
-  <!-- dictionary then script -->
-  <script src="dictionary.js"></script>
-  <script src="script.js"></script>
 </body>
 </html>
