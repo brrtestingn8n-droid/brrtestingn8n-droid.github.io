@@ -1,163 +1,143 @@
-// ----------------------------------------------------
-// scripts.js
-// Contains Levenshtein, fuzzy lookup, and the main calculator logic.
-// ----------------------------------------------------
+// --- SCRIPT.JS ---
+// Improved fuzzy matching + quantity detection + van/crew estimator
 
-// --- Original Functions (Code 1) ---
-
-/**
- * Calculates the Levenshtein distance between two strings (a and b).
- */
-function levenshtein(a, b) {
-  // Handle empty strings for robustness
-  if (a.length === 0) return b.length;
-  if (b.length === 0) return a.length;
-
-  const m = [];
-  // Initialize matrix
-  for (let i = 0; i <= b.length; i++) m[i] = [i];
-  for (let j = 0; j <= a.length; j++) m[0][j] = j;
-
-  // Fill in the matrix
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      m[i][j] = Math.min(
-        m[i - 1][j] + 1, // Deletion
-        m[i][j - 1] + 1, // Insertion
-        m[i - 1][j - 1] + (a[j - 1] === b[i - 1] ? 0 : 1) // Substitution/Match
-      );
-    }
-  }
-  return m[b.length][a.length];
+// 1. Normalise string
+function normalise(str) {
+    return str
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 }
 
-/**
- * Finds the best matching key in window.volumeDict for the given item string.
- */
-function fuzzyLookup(item) {
-  let best = null,
-    bestScore = 999;
-  const target = item.toLowerCase().trim(); // Convert input to lowercase
+// 2. Extract quantity from any English form
+function getQuantity(str) {
+    str = str.toLowerCase();
+    
+    // direct numbers
+    let num = str.match(/(^|\s)(\d+)(?=\s|x|$)/);
+    if (num) return parseInt(num[2]);
 
-  for (const key in window.volumeDict) {
-    // Keys in volumeDict are already lowercase (Code 2 best practice)
-    const d = levenshtein(target, key);
+    // "2 x item"
+    let numX = str.match(/(\d+)\s*x/);
+    if (numX) return parseInt(numX[1]);
 
-    // Require closer match for short words
-    if (target.length <= 5 && d > 1) continue;
+    // basic words
+    const words = {
+        "one": 1, "a": 1, "an": 1,
+        "two": 2, "three": 3, "four": 4, "five": 5,
+        "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10
+    };
 
-    if (d < bestScore) {
-      bestScore = d;
-      best = key;
+    for (let w in words) {
+        if (str.includes(" " + w + " ")) return words[w];
     }
-  }
 
-  // Only consider a match if the score is low (max 2 differences)
-  return bestScore <= 2 ? best : null;
+    return 1; // default
 }
 
-// --- New Calculation Logic ---
+// 3. Fuzzy match against dictionary
+function fuzzyMatch(input, dictionary) {
+    input = normalise(input);
+    let bestMatch = null;
+    let bestScore = 0;
 
-// Constants for simple quote calculation
-const BASE_RATE_PER_VOLUME = 0.85; // Example base rate
-const PACKING_COST_MULTIPLIER = 0.5; // 50% extra for packing labor
-const DISMANTLE_COST_PER_ITEM = 30; // Flat fee per dismantle item
-const FLOOR_PENALTY_RATE = 0.05; // 5% cost increase per floor without a lift
+    Object.keys(dictionary).forEach(key => {
+        let keyNorm = normalise(key);
 
-/**
- * Calculates the total quote based on user inputs.
- */
-function calculateQuote() {
-  const itemsText = document.getElementById('items').value;
-  const items = itemsText.split('\n').filter(line => line.trim() !== ''); // Split by line, ignore empty lines
+        // token score
+        let inputTokens = input.split(" ");
+        let keyTokens = keyNorm.split(" ");
 
-  // --- 1. Volume Calculation ---
-  let totalVolume = 0;
-  let matches = 0;
-  let unmatchedItems = [];
+        let score = 0;
+        inputTokens.forEach(t => {
+            if (keyTokens.includes(t)) score += 1;
+        });
 
-  for (const item of items) {
-    const matchedKey = fuzzyLookup(item);
-    if (matchedKey) {
-      totalVolume += window.volumeDict[matchedKey];
-      matches++;
-    } else {
-      unmatchedItems.push(item);
-    }
-  }
+        // partial matches (sofa vs corner sofa)
+        if (keyNorm.includes(input) || input.includes(keyNorm)) score += 1;
 
-  // --- 2. Cost Calculation ---
-  let baseVolumeCost = totalVolume * BASE_RATE_PER_VOLUME;
-  let totalCost = baseVolumeCost;
-  let breakdown = {
-    volume: baseVolumeCost,
-    packing: 0,
-    dismantle: 0,
-    floorPenalty: 0,
-  };
+        if (score > bestScore) {
+            bestScore = score;
+            bestMatch = key;
+        }
+    });
 
-  // --- 3. Service Costs ---
-  const isPacking = document.getElementById('packing').checked;
-  const dismantleCount = parseInt(document.getElementById('dismantleCount').value) || 0;
+    // fallback small volume
+    return bestMatch ? bestMatch : null;
+}
 
-  if (isPacking) {
-    breakdown.packing = baseVolumeCost * PACKING_COST_MULTIPLIER;
-    totalCost += breakdown.packing;
-  }
+// 4. Calculate total volume
+function calculateVolume(inputText) {
+    const lines = inputText
+        .split(/\n|,/)
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
 
-  if (dismantleCount > 0) {
-    breakdown.dismantle = dismantleCount * DISMANTLE_COST_PER_ITEM;
-    totalCost += breakdown.dismantle;
-  }
+    let total = 0;
+    let breakdown = [];
 
-  // --- 4. Floor/Access Penalty (Pickup) ---
-  const pickupFloor = parseInt(document.getElementById('pickupFloor').value) || 0;
-  const hasPickupLift = document.getElementById('pickupLift').value.toLowerCase().includes('y');
+    lines.forEach(line => {
+        const qty = getQuantity(line);
+        const query = normalise(line.replace(/^\d+\s*x?/, "").trim());
 
-  if (pickupFloor > 0 && !hasPickupLift) {
-    // Only apply penalty if floor > 0 AND no lift
-    const penalty = totalCost * (pickupFloor * FLOOR_PENALTY_RATE);
-    breakdown.floorPenalty += penalty;
-    totalCost += penalty;
-  }
+        const match = fuzzyMatch(query, window.volumeDict);
 
-  // --- 5. Generate Output ---
-  let outputHTML = `
-    <h4>✅ **Quote Calculation Summary**</h4>
-    <p>Items Matched: **${matches}** / ${items.length}</p>
-    <p>Total Estimated Volume: **${totalVolume.toFixed(2)}** units</p>
-    <hr>
-    <p>🚚 **Base Moving Cost (Volume):** $${breakdown.volume.toFixed(2)}</p>
+        if (match) {
+            let vol = window.volumeDict[match] * qty;
+            total += vol;
+            breakdown.push({
+                item: match,
+                qty,
+                itemVolume: window.volumeDict[match],
+                subtotal: vol
+            });
+        } else {
+            // unknown entry — assume small misc item
+            let vol = 5 * qty;
+            total += vol;
+            breakdown.push({
+                item: query,
+                qty,
+                itemVolume: 5,
+                subtotal: vol,
+                guessed: true
+            });
+        }
+    });
+
+    return { total, breakdown };
+}
+
+// 5. Van & crew recommendation
+function getVanAndCrew(cuft) {
+    if (cuft < 250) return { van: "Small Van", crew: 1 };
+    if (cuft < 500) return { van: "Medium Van", crew: 1 };
+    if (cuft < 850) return { van: "Luton Van", crew: 2 };
+    if (cuft < 1300) return { van: "Large Luton Van", crew: 3 };
+    if (cuft < 1800) return { van: "Two Lutons", crew: 3 };
+    return { van: "7.5t Truck", crew: 4 };
+}
+
+// 6. UI handler
+document.getElementById("calculateBtn").addEventListener("click", () => {
+    const input = document.getElementById("itemsInput").value;
+
+    const result = calculateVolume(input);
+    const rec = getVanAndCrew(result.total);
+
+    let output = `
+        <strong>Total Volume:</strong> ${result.total} cu ft<br>
+        <strong>Recommended Van:</strong> ${rec.van}<br>
+        <strong>Crew:</strong> ${rec.crew} movers<br><br>
+        <strong>Breakdown:</strong><br>
     `;
 
-  if (breakdown.packing > 0) {
-    outputHTML += `<p>📦 **Packing Service Cost:** $${breakdown.packing.toFixed(2)}</p>`;
-  }
-  if (breakdown.dismantle > 0) {
-    outputHTML += `<p>🛠️ **Dismantling/Reassembly:** $${breakdown.dismantle.toFixed(2)} (${dismantleCount} items)</p>`;
-  }
-  if (breakdown.floorPenalty > 0) {
-    outputHTML += `<p>🪜 **Access Penalty (Floors/No Lift):** $${breakdown.floorPenalty.toFixed(2)}</p>`;
-  }
+    result.breakdown.forEach(b => {
+        output += `${b.qty} × ${b.item} = ${b.subtotal} cu ft`;
+        if (b.guessed) output += " (guessed)";
+        output += "<br>";
+    });
 
-  outputHTML += `
-    <hr style="border-top: 2px solid #1b3c7a;"/>
-    <h3>💰 **TOTAL ESTIMATED QUOTE: $${totalCost.toFixed(2)}**</h3>
-  `;
-
-  if (unmatchedItems.length > 0) {
-    outputHTML += `<br><p style="color:red; font-weight:bold;">⚠️ Could not find a match for: ${unmatchedItems.join(', ')}</p>`;
-  }
-
-  document.getElementById('output').innerHTML = outputHTML;
-}
-
-
-// --- Event Listener ---
-// Wait for the entire document to load before attaching the listener
-document.addEventListener('DOMContentLoaded', () => {
-  const calcButton = document.getElementById('btnCalc');
-  if (calcButton) {
-    calcButton.addEventListener('click', calculateQuote);
-  }
+    document.getElementById("result").innerHTML = output;
 });
